@@ -11,19 +11,19 @@
 
 	<modules>
 		<module>demoapp</module>
+		<module>demodata</module>
 		<module>integration-tests</module>
 		<module>demoweb</module>
 		<module>ui-tests</module>
-        <module>demodata</module>
     </modules>
 
 	<distributionManagement>
 	    <repository>
-	        <id>mavenrepo.mg.ny.frb.org</id>
+	        <id>mavenrepo.org</id>
 	        <url>http://mavenrepo/nexus/content/repositories/releases</url>
 	    </repository>
 	    <snapshotRepository>
-		    <id>mavenrepo.mg.ny.frb.org</id>
+		    <id>mavenrepo.org</id>
 		    <url>http://mavenrepo/nexus/content/repositories/snapshots</url>
 	    </snapshotRepository>
 	</distributionManagement>
@@ -214,11 +214,6 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>jboss-maven-plugin</artifactId>
                     <version>1.5.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>wagon-maven-plugin</artifactId>
-                    <version>1.0-beta-3</version>
                 </plugin>
             </plugins>
         </pluginManagement>
