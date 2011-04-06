@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security-3.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <security:authentication-manager alias="authenticationManager">
+        <!-- provided elsewhere -->
+        <!--<security:authentication-provider ref="authProvider"/>-->
+        <security:authentication-provider>
+            <security:user-service>
+                <!-- 2 different roles, login.jsp looks different depending on role -->
+                <security:user authorities="ROLE_USER" name="user" password="user"/>
+                <security:user authorities="ROLE_GUEST" name="guest" password="guest"/>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+    <security:global-method-security pre-post-annotations="enabled"/>
+
+    <bean id="authProvider"
+          class="org.springframework.security.authentication.jaas.JaasAuthenticationProvider">
+        <property name="loginConfig" value="/WEB-INF/login.conf"/>
+        <property name="loginContextName" value="demoweb"/>
+        <property name="callbackHandlers">
+            <list>
+                <bean
+                        class="org.springframework.security.authentication.jaas.JaasNameCallbackHandler"/>
+                <bean
+                        class="org.springframework.security.authentication.jaas.JaasPasswordCallbackHandler"/>
+            </list>
+        </property>
+        <property name="authorityGranters">
+            <list>
+                <bean class="org.oaky.GroupNameAuthorityGranter"/>
+            </list>
+        </property>
+    </bean>
+</beans>
