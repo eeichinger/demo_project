@@ -1,0 +1,1 @@
+xcopy /S /I %~dp0demoweb\target\demoweb C:\workspace\jboss-5.1.0.GA\server\default\deploy\demoweb.war

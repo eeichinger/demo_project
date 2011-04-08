@@ -30,7 +30,13 @@
 		<property name="createDatabase" value="true" />
 	</bean>
 -->
+	<bean id="demoDS" class="oracle.jdbc.xa.client.OracleXADataSource">
+		<property name="URL" value="jdbc:oracle:thin:@localhost:1521:orcl" />
+		<property name="user" value="spatt_ods" />
+		<property name="password" value="spatt_ods" />
+	</bean>
 
+<!--
 	<bean id="demoDS" class="testsupport.EmbeddedXADatabaseFactoryBean">
 		<property name="databaseType" value="DERBY" />
 		<property name="dataSource">
@@ -46,10 +52,11 @@
 				<property name="scripts">
 					<list>
 						<value>demo-schema.sql</value>
-						<!--<value>demo-data.sql</value>-->
+						&lt;!&ndash;<value>demo-data.sql</value>&ndash;&gt;
 					</list>
 				</property>
 			</bean>
 		</property>
 	</bean>
+-->
 </beans>

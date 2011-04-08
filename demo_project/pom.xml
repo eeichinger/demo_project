@@ -38,14 +38,18 @@
 	</properties>
 
 	<repositories>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>cukes</id>
+            <url>http://cukes.info/maven/</url>
+        </repository>
 	    <repository>
 	        <id>codehaus</id>
 	        <url>http://repository.codehaus.org/</url>
 	    </repository>
-        <repository>
-            <id>cukes</id>
-            <url>http://cukes.info/maven</url>
-        </repository>
 	    <repository>
 	        <id>jboss</id>
 	        <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>

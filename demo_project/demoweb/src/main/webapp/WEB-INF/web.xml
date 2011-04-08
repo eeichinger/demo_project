@@ -8,6 +8,7 @@
 	</description>
 	<display-name>Spatt Demo Web</display-name>
 
+<!--
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
 		<param-value>/WEB-INF/log4j.xml</param-value>
@@ -15,10 +16,12 @@
 	<listener>
 		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
 	</listener>
+-->
 
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
+			classpath:/demodata-context.xml
 			classpath:/demoapp-context.xml
 			classpath:/demoapp-security.xml
 			/WEB-INF/demoweb-security.xml

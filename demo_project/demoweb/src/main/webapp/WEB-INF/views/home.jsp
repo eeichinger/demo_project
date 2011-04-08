@@ -18,6 +18,8 @@
 </sec:authorize>
 <sec:authorize access="hasRole('ROLE_USER')">
 	You have full access to all functions
+	<c:url value="/forbiddenforguests.do" var="forbiddenUrl"/>
+	<li><a href="${forbiddenUrl}">Trigger Forbidden Method Call</a></li>
 </sec:authorize>
 
 </body>

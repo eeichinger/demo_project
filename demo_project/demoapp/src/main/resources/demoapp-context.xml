@@ -5,6 +5,8 @@
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-	<beans:bean class="org.oaky.service.ForbiddenForGuestsFacadeImpl" />
+	<beans:bean class="org.oaky.service.ForbiddenForGuestsFacadeImpl">
+		<beans:constructor-arg ref="roleRepository" />
+	</beans:bean>
 
 </beans:beans>

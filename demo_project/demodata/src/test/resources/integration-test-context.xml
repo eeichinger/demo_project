@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
                             http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
 
-    <import resource="classpath:demodata-config.xml" />
+    <import resource="classpath:demodata-context.xml" />
 
     <import resource="integration-test-environment.xml" />
 

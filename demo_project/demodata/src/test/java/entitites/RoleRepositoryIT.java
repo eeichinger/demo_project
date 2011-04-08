@@ -1,7 +1,6 @@
 package entitites;
 
-import entities.User;
-import entities.UserRepository;
+import entities.RoleRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,21 +11,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.AfterTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import java.io.Serializable;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/integration-test-context.xml")
 @Transactional
-public class UserRepositoryIT {
+public class RoleRepositoryIT implements Serializable {
 
     @Autowired
-    UserRepository userRepository;
+	RoleRepository roleRepository;
 
-    @PersistenceContext(unitName = "demoPU")
-    EntityManager entityManager;
+//    @PersistenceContext(unitName = "demoPU")
+//    EntityManager entityManager;
 
     @Autowired
     DataSource dataSource;
@@ -34,17 +32,17 @@ public class UserRepositoryIT {
     @Test
     public void should_be_emtpy() {
 
-        entityManager.persist(new User(3, "myusername"));
-        entityManager.flush();
-        entityManager.clear();
+//        entityManager.persist(new Role(3, "myusername"));
+//        entityManager.flush();
+//        entityManager.clear();
 
-        Assert.assertNotNull(userRepository.getUserName(3));
+        Assert.assertNotNull(roleRepository.getRole(3));
     }
 
     @AfterTransaction
     public void afterTransaction() {
         SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
-        int recs = jdbc.queryForInt("select count(*) from UserData");
-        Assert.assertEquals(0, recs);
+        int recs = jdbc.queryForInt("select count(*) from ROLE");
+        Assert.assertEquals(7, recs);
     }
 }

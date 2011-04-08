@@ -17,6 +17,17 @@
             <artifactId>demoapp</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>demoproject</groupId>
+            <artifactId>demodata</artifactId>
+            <version>${project.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+        </dependency>
         <!-- standard JSP -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -60,15 +71,21 @@
         </dependency>
 
         <!-- runtime libs -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<!--<version>1.6.1</version>-->
+			<scope>test</scope>
+		</dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <scope>runtime</scope>
+			<scope>test</scope>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
-            <scope>runtime</scope>
+			<scope>test</scope>
         </dependency>
 
         <!-- test libs -->
@@ -110,6 +127,26 @@
                 <filtering>true</filtering>
             </testResource>
         </testResources>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.1-beta-1</version>
+				<configuration>
+					<packagingExcludes>
+						**/.svn, **/.svn/**, **/.svn/**/*,
+						**/dom4j.jar,
+						**/stax-*.jar,
+						**/jaxb-*.jar,
+						**/xml*.jar,
+						**/jta*.jar
+					</packagingExcludes>
+					<filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+					<warName>${project.build.finalName}</warName>
+				</configuration>
+			</plugin>
+		</plugins>
     </build>
 
     <profiles>

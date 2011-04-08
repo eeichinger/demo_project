@@ -17,7 +17,8 @@ public class SecuredActionController {
 	}
 	
 	@RequestMapping("/forbiddenforguests.do")
-	public void userOnlyMethod() {
+	public String userOnlyMethod() {
 		facade.doSomethingSensitive();
+		return "home";
 	}
 }
