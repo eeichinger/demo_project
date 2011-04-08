@@ -10,14 +10,11 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
 	">
 
-    <tx:annotation-driven/>
-    <context:annotation-config/>
-
     <alias name="txManager" alias="transactionManager"/>
-    <alias name="userTransactionManager" alias="java:/UserTransaction"/>
-    <alias name="userTransactionManager" alias="java:/TransactionManager"/>
+    <alias name="atomikosTransactionManager" alias="java:/TransactionManager"/>
+    <alias name="atomikosUserTransaction" alias="UserTransaction"/>
 
-    <bean id="atomikosTransactionManager" name="userTransactionManager"
+    <bean id="atomikosTransactionManager"
           class="com.atomikos.icatch.jta.UserTransactionManager" init-method="init" destroy-method="close">
         <property name="startupTransactionService" value="true"/>
         <property name="forceShutdown" value="true"/>

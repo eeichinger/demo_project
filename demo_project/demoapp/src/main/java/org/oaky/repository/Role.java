@@ -1,4 +1,4 @@
-package entities;
+package org.oaky.repository;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,7 +11,7 @@ import javax.persistence.Id;
 public class Role {
 
     @Id
-	@Column(name = "ROLE_KEY")
+	@Column(name = "ROLE_ID")
     private int key;
 	@Column(name = "ROLE_NAME")
     private String name;

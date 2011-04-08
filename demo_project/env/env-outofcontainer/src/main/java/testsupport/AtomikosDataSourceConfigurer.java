@@ -2,6 +2,7 @@ package testsupport;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
@@ -9,13 +10,13 @@ import javax.sql.DataSource;
 import javax.sql.XAConnection;
 import javax.sql.XADataSource;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
 import com.atomikos.icatch.system.Configuration;
@@ -28,25 +29,25 @@ import com.atomikos.jdbc.AtomikosDataSourceBean;
 public class AtomikosDataSourceConfigurer implements BeanPostProcessor, PriorityOrdered, DisposableBean {
     private final static Logger log = LoggerFactory.getLogger(AtomikosDataSourceConfigurer.class);
 
-	private static class XAAtomikosDataSourceBean extends AtomikosDataSourceBean implements XADataSource {
-		public <T> T unwrap(Class<T> iface) throws SQLException {
-			throw new RuntimeException("TO BE IMPLEMENTED");
-		}
+    private static class XAAtomikosDataSourceBean extends AtomikosDataSourceBean implements XADataSource {
+        public <T> T unwrap(Class<T> iface) throws SQLException {
+            throw new RuntimeException("TO BE IMPLEMENTED");
+        }
 
-		public boolean isWrapperFor(Class<?> iface) throws SQLException {
-			throw new RuntimeException("TO BE IMPLEMENTED");
-		}
+        public boolean isWrapperFor(Class<?> iface) throws SQLException {
+            throw new RuntimeException("TO BE IMPLEMENTED");
+        }
 
-		public XAConnection getXAConnection() throws SQLException {
-			throw new RuntimeException("TO BE IMPLEMENTED");
-		}
+        public XAConnection getXAConnection() throws SQLException {
+            throw new RuntimeException("TO BE IMPLEMENTED");
+        }
 
-		public XAConnection getXAConnection(String user, String password) throws SQLException {
-			throw new RuntimeException("TO BE IMPLEMENTED");
-		}
-	}
-	
-    private int order = LOWEST_PRECEDENCE;
+        public XAConnection getXAConnection(String user, String password) throws SQLException {
+            throw new RuntimeException("TO BE IMPLEMENTED");
+        }
+    }
+
+    private int order = Ordered.LOWEST_PRECEDENCE;
     private boolean allowNonXADataSources = false;
     private AtomikosDataSourceBean prototypeAtomikosConfig = new AtomikosDataSourceBean();
     private final static List<DisposableBean> dataSourceBeans = new ArrayList<DisposableBean>();
@@ -85,13 +86,17 @@ public class AtomikosDataSourceConfigurer implements BeanPostProcessor, Priority
 
     public AtomikosDataSourceConfigurer() {
         log.debug("instantiated");
-        if (dataSourceBeans.size()>0) {
+        if (dataSourceBeans.size() > 0) {
             throw new RuntimeException("orphan datasources left from previous run");
         }
 
         ArrayList list = new ArrayList();
-        CollectionUtils.addAll(list, Configuration.getResources());
-        if (list.size()>0) {
+        Enumeration enumeration = Configuration.getResources();
+        while (enumeration.hasMoreElements()) {
+            list.add(enumeration.nextElement());
+        }
+
+        if (list.size() > 0) {
             throw new RuntimeException("orphan resources left from previous run");
         }
     }
@@ -153,7 +158,7 @@ public class AtomikosDataSourceConfigurer implements BeanPostProcessor, Priority
     }
 
     public void destroy() throws Exception {
-        for(DisposableBean bean:dataSourceBeans) {
+        for (DisposableBean bean : dataSourceBeans) {
             bean.destroy();
         }
         dataSourceBeans.clear();

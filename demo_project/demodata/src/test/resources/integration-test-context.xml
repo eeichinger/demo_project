@@ -9,6 +9,4 @@
 
     <import resource="integration-test-environment.xml" />
 
-    <bean class="testsupport.SpringJndiContextConfigurer" />
-
 </beans>

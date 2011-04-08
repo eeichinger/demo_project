@@ -1,6 +1,8 @@
-package entities;
+package org.oaky.repository;
 
 
+import org.oaky.repository.Role;
+import org.oaky.repository.RoleRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.PersistenceContext;

@@ -3,7 +3,7 @@ package featuresteps;
 import cuke4duke.annotation.I18n.EN.Given;
 import cuke4duke.annotation.I18n.EN.Then;
 import cuke4duke.annotation.I18n.EN.When;
-import org.oaky.service.ForbiddenForGuestsFacade;
+import org.oaky.service.ManagePermissionsFacade;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import testsupport.SecurityHelper;
 public class PreventFraudSteps {
 
 	@Autowired
-	public ForbiddenForGuestsFacade forbiddenForGuestsFacade;
+	public ManagePermissionsFacade managePermissionsFacade;
 
 	private Exception resultException;
 	
@@ -31,7 +31,7 @@ public class PreventFraudSteps {
 	@When("^a facade function is used$")
 	public void aFacadeFunctionIsUsed() {
 		try {
-			forbiddenForGuestsFacade.doSomethingSensitive();
+			managePermissionsFacade.doSomethingSensitive();
 		} catch (Exception e) {
 			resultException = e;
 		}

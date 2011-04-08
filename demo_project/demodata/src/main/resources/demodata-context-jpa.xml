@@ -7,7 +7,7 @@
 							http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
 							http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
-	<bean id="roleRepository" class="entities.JpaRoleRepository">
+	<bean id="roleRepository" class="org.oaky.repository.JpaRoleRepository">
 		<constructor-arg ref="sessionFactory" />
 	</bean>
 

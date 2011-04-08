@@ -1,16 +1,16 @@
 package org.oaky.service;
 
 
-import entities.RoleRepository;
+import org.oaky.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-public class ForbiddenForGuestsFacadeImpl implements ForbiddenForGuestsFacade {
+public class ManagePermissionsFacadeImpl implements ManagePermissionsFacade {
 
 	private final RoleRepository roleRepository;
 
 	@Autowired
-	public ForbiddenForGuestsFacadeImpl(RoleRepository roleRepository) {
+	public ManagePermissionsFacadeImpl(RoleRepository roleRepository) {
 		Assert.notNull(roleRepository);
 		this.roleRepository = roleRepository;
 	}
