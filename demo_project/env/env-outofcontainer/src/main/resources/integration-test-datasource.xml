@@ -20,11 +20,13 @@
 			<jdbc:script location="classpath:demo-data.sql"/>
 		</jdbc:embedded-database>
 	-->
+<!--
     <bean id="demoDS" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
         <constructor-arg ref="demoDB" />
     </bean>
-    
-	<bean name="demoDB" class="testsupport.EmbeddedXADatabaseFactoryBean">
+-->
+
+	<bean name="demoDS" class="testsupport.EmbeddedXADatabaseFactoryBean">
 		<property name="databaseType" value="DERBY" />
 		<property name="dataSource">
 			<bean class="org.apache.derby.jdbc.EmbeddedXADataSource">

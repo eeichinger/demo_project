@@ -36,30 +36,13 @@ public class RoleRepositoryIT implements Serializable {
 
     @Before
     public void setUp() {
-        System.out.println("SETUP BEGIN");
         jdbc = new SimpleJdbcTemplate(dataSource);
         jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 999, "TESTROLE");
-//        int recs = jdbc.queryForInt("select count(*) from ROLE");
-//        Assert.assertEquals(2, recs);
-//        Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
-        System.out.println("SETUP END");
     }
     
     @Test
     public void should_be_emtpy() throws Exception {
-        System.out.println("TEST BEGIN");
-        int recs = jdbc.queryForInt("select count(*) from ROLE");
-        Assert.assertEquals(2, recs);
-        System.out.println("TEST JDBC DONE");
-        try {
-            Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
-        } catch (Exception e) {
-            System.out.println("TEST FAIL:");
-            e.printStackTrace();
-            throw e;
-        } finally {
-            System.out.println("TEST END");
-        }
+        Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
     }
 
     @AfterTransaction
