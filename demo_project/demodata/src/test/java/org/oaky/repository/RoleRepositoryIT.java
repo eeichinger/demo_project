@@ -41,7 +41,7 @@ public class RoleRepositoryIT implements Serializable {
     }
     
     @Test
-    public void should_be_emtpy() throws Exception {
+    public void should_read_correct_role() throws Exception {
         Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
     }
 
