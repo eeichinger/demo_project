@@ -7,11 +7,8 @@
         http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
 
-    <!-- business objects -->
-    <import resource="demoapp-beans.xml" />
-
-    <!-- crosscutting concerns -->
-    <import resource="demoapp-security.xml" />
-    <import resource="demoapp-transactional.xml" />
+    <bean class="org.oaky.service.ManagePermissionsFacadeImpl">
+        <constructor-arg ref="roleRepository"/>
+    </bean>
 
 </beans>

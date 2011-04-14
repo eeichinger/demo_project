@@ -1,5 +1,7 @@
 package testsupport;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -70,6 +72,8 @@ public class SpringJndiContextConfigurer implements BeanFactoryPostProcessor, Pr
     }
 
     public static class ApplicationContextNamingContext implements Context {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
         private final Hashtable env;
         private final WeakReference<BeanFactory> appCtxRef;
 
@@ -79,23 +83,30 @@ public class SpringJndiContextConfigurer implements BeanFactoryPostProcessor, Pr
         }
 
         public Object lookup(String name) throws NamingException {
-//            if (appCtxRef.get().containsBean(name)) {
-//                return appCtxRef.get().getBean(name);
-//            }
+            BeanFactory beanFactory = appCtxRef.get();
+            if (beanFactory.containsBean(name)) {
+                logger.debug("bean found for JNDI name " + name);
+                return beanFactory.getBean(name);
+            }
+
             if (name.startsWith("java:comp/env/")) {
                 String derefname = name.substring("java:comp/env/".length());
-                if (appCtxRef.get().containsBean(name)) {
-                    return derefname;
+                if (beanFactory.containsBean(derefname)) {
+                    logger.debug("bean found for JNDI name " + name + ":" + derefname);
+                    return beanFactory.getBean(derefname);
                 }
             }
             if (name.startsWith("java:comp/")) {
                 String derefname = name.substring("java:comp/".length());
-                if (appCtxRef.get().containsBean(name)) {
-                    return derefname;
+                if (beanFactory.containsBean(derefname)) {
+                    logger.debug("bean found for JNDI name " + name + ":" + derefname);
+                    return beanFactory.getBean(derefname);
                 }
             }
 
-            return appCtxRef.get().getBean(name);
+            logger.warn("no bean found for JNDI name " + name);
+            return null;
+//            return appCtxRef.get().getBean(name);
         }
 
         public Object lookup(Name name) throws NamingException {

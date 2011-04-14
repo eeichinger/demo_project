@@ -10,7 +10,6 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
 	">
 
-    <alias name="txManager" alias="transactionManager"/>
     <alias name="atomikosTransactionManager" alias="java:/TransactionManager"/>
     <alias name="atomikosUserTransaction" alias="UserTransaction"/>
 
@@ -22,15 +21,9 @@
 
     <bean id="atomikosUserTransaction" class="com.atomikos.icatch.jta.UserTransactionImp" />
 
-    <bean id="txManager"
-          class="org.springframework.transaction.jta.JtaTransactionManager">
-        <property name="transactionManager" ref="atomikosTransactionManager"/>
-        <property name="userTransaction" ref="atomikosUserTransaction"/>
-    </bean>
-
     <bean class="testsupport.AtomikosDataSourceConfigurer">
         <property name="allowNonXADataSources" value="false"/>
-        <property name="maxPoolSize" value="20"/>
+        <property name="maxPoolSize" value="10"/>
         <property name="minPoolSize" value="5"/>
     </bean>
 

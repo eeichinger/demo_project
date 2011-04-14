@@ -15,8 +15,9 @@
 		<module>demodata</module>
 		<module>integration-tests</module>
 		<module>demoweb</module>
+        <module>demoear</module>
 		<module>ui-tests</module>
-	</modules>
+    </modules>
 
 	<distributionManagement>
 	    <repository>
@@ -67,6 +68,23 @@
 
 	<dependencyManagement>
 	    <dependencies>
+            <dependency>
+                <groupId>demoproject</groupId>
+                <artifactId>demodata</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>demoproject</groupId>
+                <artifactId>demoapp</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>demoproject</groupId>
+                <artifactId>demoweb</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+            </dependency>
+
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium</artifactId>
@@ -237,6 +255,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.7.1</version>
+                <configuration>
+                    <useFile>false</useFile>
+                </configuration>
                 <executions>
                     <execution>
                         <id>integration-test</id>

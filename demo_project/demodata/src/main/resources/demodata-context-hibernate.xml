@@ -13,24 +13,15 @@
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
         <property name="dataSource" ref="demoDS"/>
-        <!--<property name="jtaTransactionManager" ref="atomikosTransactionManager"/>-->
         <property name="useTransactionAwareDataSource" value="true"/>
-        <!--<property name="exposeTransactionAwareSessionFactory" value="false"/>-->
         <property name="packagesToScan" value="org.oaky"/>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.hbm2ddl.auto">off</prop>
                 <prop key="hibernate.show_sql">true</prop>
                 <prop key="hibernate.transaction.factory_class">
-                    <!--org.hibernate.transaction.JTATransactionFactory-->
                     org.springframework.orm.hibernate3.SpringTransactionFactory
                 </prop>
-<!--
-                <prop key="hibernate.transaction.manager_lookup_class">
-                    org.hibernate.transaction.JBossTransactionManagerLookup
-                    &lt;!&ndash;org.hibernate.transaction.JTATransactionFactory&ndash;&gt;
-                </prop>
--->
                 <!--<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>-->
                 <!--<prop key="hibernate.connection.release_mode">auto</prop>-->
                 <!--<prop key="hibernate.current_session_context_class">jta</prop>-->

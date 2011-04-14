@@ -10,8 +10,8 @@
 <!--
 	<bean id="demoDS" class="oracle.jdbc.xa.client.OracleXADataSource">
 		<property name="URL" value="jdbc:oracle:thin:@localhost:1521:orcl" />
-		<property name="user" value="spatt_ods" />
-		<property name="password" value="spatt_ods" />
+		<property name="user" value="username" />
+		<property name="password" value="password" />
 	</bean>
 -->
 	<!--
@@ -26,7 +26,7 @@
     </bean>
 -->
 
-	<bean name="demoDS" class="testsupport.EmbeddedXADatabaseFactoryBean">
+	<bean name="java:/comp/env/jdbc/demoDS" class="testsupport.EmbeddedXADatabaseFactoryBean">
 		<property name="databaseType" value="DERBY" />
 		<property name="dataSource">
 			<bean class="org.apache.derby.jdbc.EmbeddedXADataSource">

@@ -10,8 +10,12 @@
 		</layout>
 	</appender>
 
+    <logger name="atomikos">
+        <level value="error" />
+    </logger>
+
     <root>
-        <priority value="info" />
+        <level value="info" />
         <appender-ref ref="console" />
     </root>
 

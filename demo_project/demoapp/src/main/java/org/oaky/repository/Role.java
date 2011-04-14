@@ -4,9 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-/**
- * TODO: describe purpose of class/interface
- */
 @Entity
 public class Role {
 
