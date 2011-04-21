@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security-3.0.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.0.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd">
+
+    <security:http auto-config="true" use-expressions="true" security-context-repository-ref="securityContextRepository">
+        <security:intercept-url pattern="/shared/resources" access="permitAll"/>
+        <security:intercept-url pattern="/shared/login" access="permitAll"/>
+        <security:intercept-url pattern="/*" access="isAuthenticated()"/>
+        <security:form-login login-page="/shared/login" default-target-url="/" login-processing-url="/shared/j_spring_security_check" />
+        <security:logout invalidate-session="true" logout-url="/shared/logout" logout-success-url="/"/>
+    </security:http>
+
+    <security:authentication-manager alias="authenticationManager">
+        <!-- provided elsewhere -->
+        <!--<security:authentication-provider ref="authProvider"/>-->
+        <security:authentication-provider>
+            <security:user-service>
+                <!-- 2 different roles, login.jsp looks different depending on role -->
+                <security:user authorities="ROLE_USER" name="user" password="user"/>
+                <security:user authorities="ROLE_GUEST" name="guest" password="guest"/>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+	<bean id="securityContextRepository" class="org.springframework.security.web.context.HttpSessionSecurityContextRepository">
+		<!-- TODO: replace this bean implementation to enable SSO by storing/retrieving current username+authorities e.g. in global application scope and/or cookie -->
+	</bean>
+	
+    <mvc:resources mapping="/shared/resources/**" location="classpath:/shared/resources/"/>
+
+    <mvc:view-controller path="/shared/login" view-name="login" />
+
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="classpath:/shared/"/>
+    </bean>
+
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="order" value="1" />
+        <property name="cache" value="false"/>
+        <property name="prefix" value="/ftl/"/>
+        <property name="suffix" value=".ftl"/>
+        <!-- if you want to use the Spring FreeMarker macros, set this property to true -->
+        <!--<property name="exposeSpringMacroHelpers" value="true"/>-->
+    </bean>
+
+	<!--
+		delegate all unresolvable requests to default servlet
+		NOTE: this must be the last entry in the context configuration
+	-->
+	<mvc:default-servlet-handler/>
+
+</beans>
