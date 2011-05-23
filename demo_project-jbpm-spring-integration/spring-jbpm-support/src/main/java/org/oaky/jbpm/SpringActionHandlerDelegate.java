@@ -5,9 +5,10 @@ import org.jbpm.graph.exe.ExecutionContext;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.Assert;
 
-public class SpringActionHandlerDelegate implements ActionHandler, BeanFactoryAware {
+public class SpringActionHandlerDelegate implements ActionHandler, BeanFactoryAware, DisposableBean {
 
 	private static BeanFactory globalBeanFactory;
 
@@ -26,4 +27,7 @@ public class SpringActionHandlerDelegate implements ActionHandler, BeanFactoryAw
 		globalBeanFactory.getBean(beanName, ActionHandler.class).execute(executionContext);
 	}
 
+	public void destroy() throws Exception {
+		globalBeanFactory = null;
+	}
 }
