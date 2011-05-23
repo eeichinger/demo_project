@@ -3,14 +3,10 @@ package org.oaky.jbpm;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.db.GraphSession;
-import org.jbpm.graph.def.ActionHandler;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
-import org.jbpm.graph.exe.ExecutionContext;
 import org.jbpm.graph.exe.ProcessInstance;
 import org.jbpm.graph.exe.Token;
-import org.jbpm.persistence.db.DbPersistenceServiceFactory;
-import org.jbpm.tx.TxServiceFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +49,8 @@ public class SimpleWorkflowTest {
 		// deploy the process first.  In reality, this is done once by the
 		// process developer.
 		deployProcessDefinition();
+		TestActionHandler.isExecuted = false;
+		TestActionHandler.throwException = false;
 	}
 
 	@After
@@ -74,6 +72,8 @@ public class SimpleWorkflowTest {
 		// Then, later, upon the arrival of an asynchronous message the
 		// execution must continue.
 		theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+
+		assertTrue(TestActionHandler.isExecuted);
 	}
 
 	@Test
@@ -82,14 +82,14 @@ public class SimpleWorkflowTest {
 
 		// Then, later, upon the arrival of an asynchronous message the
 		// execution must continue - this time the ActionHandler throws an exception.
-		MyActionHandler.throwException = true;
+		TestActionHandler.throwException = true;
 		try {
 			theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
 			fail("expected exception");
 		} catch(RuntimeException rex) {
 			assertTrue(rex.getMessage().contains("a test exception"));
 		} finally {
-			MyActionHandler.throwException = false;
+			TestActionHandler.throwException = false;
 		}
 
 		// TODO: figure out what happens to a process in case an ActionHandler throws an exception!!!!
@@ -109,7 +109,9 @@ public class SimpleWorkflowTest {
 								"  </start-state>" +
 								"  <state name='middle'>" +
 								"    <transition to='end'>" +
-								"      <action class='"+MyActionHandler.class.getName()+"' />" +
+								"      <action class='"+SpringActionHandlerDelegate.class.getName()+"' configType='bean'>" +
+								"        <beanName>middleActionHandler</beanName>" +
+								"      </action>" +
 								"    </transition>" +
 								"  </state>" +
 								"  <end-state name='end' />" +
@@ -199,22 +201,4 @@ public class SimpleWorkflowTest {
 		}
 	}
 
-	public static class MyActionHandler implements ActionHandler {
-
-		// Before each test (in the setUp), the isExecuted member
-		// will be set to false.
-		public static boolean isExecuted = false;
-
-		public static boolean throwException = false;
-		
-		// The action will set the isExecuted to true so the
-		// unit test will be able to show when the action
-		// is being executed.
-		public void execute(ExecutionContext executionContext) {
-			isExecuted = true;
-			if (throwException) {
-				throw new RuntimeException("a test exception from ActionHandler");
-			}
-		}
-	}
 }

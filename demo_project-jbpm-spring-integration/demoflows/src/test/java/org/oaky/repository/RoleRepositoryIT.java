@@ -36,7 +36,6 @@ public class RoleRepositoryIT implements Serializable {
 
     @Before
     public void setUp() {
-//        jdbc = new SimpleJdbcTemplate(dataSource);
         jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 999, "TESTROLE");
     }
     

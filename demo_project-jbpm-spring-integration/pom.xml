@@ -10,9 +10,10 @@
 	<version>1.0.0-SNAPSHOT</version>
 
 	<modules>
+		<module>spring-jbpm-support</module>
 		<module>env/env-outofcontainer</module>
 		<module>demoflows</module>
-    </modules>
+	</modules>
 
 	<distributionManagement>
 	    <repository>
