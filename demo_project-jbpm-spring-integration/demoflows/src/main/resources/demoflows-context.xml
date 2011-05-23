@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+							http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+							http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
+
+	<bean id="roleRepository" class="org.oaky.repository.HibernateRoleRepository">
+		<constructor-arg ref="sessionFactory"/>
+	</bean>
+
+	<jee:jndi-lookup id="demoDS" jndi-name="java:/comp/env/jdbc/demoDS"/>
+
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		<property name="dataSource" ref="demoDS"/>
+		<property name="useTransactionAwareDataSource" value="true"/>
+		<property name="packagesToScan" value="org.oaky"/>
+		<property name="configLocation">
+			<value>classpath:/hibernate.cfg.test.xml</value>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">off</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.transaction.factory_class">
+					org.springframework.orm.hibernate3.SpringTransactionFactory
+				</prop>
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</prop>-->
+				<!--<prop key="hibernate.connection.release_mode">auto</prop>-->
+				<!--<prop key="hibernate.current_session_context_class">jta</prop>-->
+				<!--<prop key="hibernate.transaction.flush_before_completion">true</prop>-->
+				<!--<prop key="hibernate.transaction.auto_close_session">true</prop>-->
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.DerbyDialect</prop>-->
+				<!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>-->
+			</props>
+		</property>
+	</bean>
+
+</beans>
