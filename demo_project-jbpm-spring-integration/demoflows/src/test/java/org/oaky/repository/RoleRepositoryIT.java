@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.AfterTransaction;
+import org.springframework.test.context.transaction.BeforeTransaction;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -27,19 +28,26 @@ public class RoleRepositoryIT implements Serializable {
 
     @Autowired
     @Qualifier("demoDS")
-    DataSource dataSource;
+    public void setDataSource(DataSource ds) {
+	    jdbc = new SimpleJdbcTemplate(ds);
+    }
 
     private SimpleJdbcTemplate jdbc;
 
     @Before
     public void setUp() {
-        jdbc = new SimpleJdbcTemplate(dataSource);
+//        jdbc = new SimpleJdbcTemplate(dataSource);
         jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 999, "TESTROLE");
     }
     
     @Test
     public void should_read_correct_role() throws Exception {
         Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
+    }
+
+    @BeforeTransaction
+    public void beforeTransaction() {
+	    jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 3, "SysAdmin");
     }
 
     @AfterTransaction

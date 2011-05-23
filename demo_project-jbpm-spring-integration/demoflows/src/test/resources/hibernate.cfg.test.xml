@@ -17,9 +17,7 @@
 		<!-- JDBC connection properties (end) -->
 
 		<!-- Automatic schema creation (begin) -->
-<!--
 	  <property name="hibernate.hbm2ddl.auto">create</property>
-  -->
 		<!-- Automatic schema creation (end) -->
 
 		<!-- DataSource properties (begin) ===
@@ -59,7 +57,7 @@
 		<mapping resource="org/jbpm/db/hibernate.queries.hbm.xml"/>
 
 		<!-- type mappings -->
-		<mapping resource="org/jbpm/db/hibernate.types.hbm.xml"/>
+		<!--<mapping resource="org/jbpm/db/hibernate.types.hbm.xml"/>-->
 
 		<!-- hql queries used in simulation for querying historical data.
 				 uncomment if you want to use the GetSimulationInputCommand
@@ -155,7 +153,7 @@
 		<mapping resource="org/jbpm/job/ExecuteNodeJob.hbm.xml"/>
 		<mapping resource="org/jbpm/job/ExecuteActionJob.hbm.xml"/>
 		<mapping resource="org/jbpm/job/CleanUpProcessJob.hbm.xml"/>
-		<mapping resource="org/jbpm/job/SignalTokenJob.hbm.xml"/>
+		<!--<mapping resource="org/jbpm/job/SignalTokenJob.hbm.xml"/>-->
 
 		<!-- taskmgmt.exe mapping files -->
 		<mapping resource="org/jbpm/taskmgmt/exe/TaskMgmtInstance.hbm.xml"/>
