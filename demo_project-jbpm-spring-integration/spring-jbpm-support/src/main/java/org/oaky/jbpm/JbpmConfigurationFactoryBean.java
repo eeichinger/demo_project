@@ -6,7 +6,6 @@ import org.jbpm.JbpmConfiguration;
 import org.jbpm.configuration.ObjectFactory;
 import org.jbpm.configuration.ObjectFactoryParser;
 import org.jbpm.configuration.ObjectInfo;
-import org.jbpm.util.ClassLoaderUtil;
 import org.jbpm.util.XmlUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;

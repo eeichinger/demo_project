@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-definition name="hello world" xmlns="urn:jbpm.org:jpdl-3.3"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="urn:jbpm.org:jpdl-3.3 http://docs.jboss.org/jbpm/xsd/jpdl-3.3.xsd">
+
+	<start-state name='start'>
+		<transition to='middle'/>
+	</start-state>
+	<state name='middle'>
+		<transition to='end'>
+			<action class='org.oaky.jbpm.SpringActionHandlerDelegate' config-type='bean'>
+				<beanName>middleActionHandler</beanName>
+			</action>
+		</transition>
+	</state>
+	<end-state name='end'/>
+
+</process-definition>

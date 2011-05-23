@@ -27,7 +27,5 @@
 		</constructor-arg>
 	</bean>
 
-	<bean class="org.oaky.jbpm.SpringActionHandlerDelegate" />
-
 	<bean name="middleActionHandler" class="org.oaky.jbpm.TestActionHandler" />
 </beans>

@@ -84,20 +84,6 @@ public class SpringDbPersistenceService implements PersistenceService {
 		return taskMgmtSession;
 	}
 
-	public boolean isRollbackOnly() {
-//		return currentTransaction.isRollbackOnly();
-		throw new UnsupportedOperationException("deprecated");
-	}
-
-	public void setRollbackOnly(boolean isRollbackOnly) {
-		throw new UnsupportedOperationException("deprecated");
-	}
-
-	public void setRollbackOnly() {
-//		currentTransaction.setRollbackOnly();
-		throw new UnsupportedOperationException("deprecated");
-	}
-
 	public void setGraphSession(GraphSession graphSession) {
 		this.graphSession = graphSession;
 	}
@@ -112,5 +98,17 @@ public class SpringDbPersistenceService implements PersistenceService {
 
 	public void setTaskMgmtSession(TaskMgmtSession taskMgmtSession) {
 		this.taskMgmtSession = taskMgmtSession;
+	}
+
+	public boolean isRollbackOnly() {
+		throw new UnsupportedOperationException("deprecated");
+	}
+
+	public void setRollbackOnly(boolean isRollbackOnly) {
+		throw new UnsupportedOperationException("deprecated");
+	}
+
+	public void setRollbackOnly() {
+		throw new UnsupportedOperationException("deprecated");
 	}
 }

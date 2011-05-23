@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -33,12 +34,10 @@ public class SimpleWorkflowTest {
 	@Autowired
 	JbpmConfiguration jbpmConfiguration = null;
 
-	JbpmTemplate jbmp;
 	TransactionTemplate transactionTemplate;
 	
 	@Before
 	public void setUp() {
-		jbmp = new JbpmTemplate(jbpmConfiguration);
 		transactionTemplate = new TransactionTemplate(transactionManager);
 		// Since we start with a clean, empty in-memory database, we have to
 		// deploy the process first.  In reality, this is done once by the
@@ -76,7 +75,7 @@ public class SimpleWorkflowTest {
 			}
 		});
 
-		assertTrue(TestActionHandler.isExecuted);
+		assertTrue("TestActionHandler wasnt invoked", TestActionHandler.isExecuted);
 	}
 
 	@Test
@@ -117,15 +116,15 @@ public class SimpleWorkflowTest {
 		// end-state named 'end'.
 		JbpmContext ctx = jbpmConfiguration.createJbpmContext();
 		try {
-			ProcessDefinition processDefinition =
-					ProcessDefinition.parseXmlString(
+/*
+			ProcessDefinition pd = ProcessDefinition.parseXmlString(
 							"<process-definition name='hello world'>" +
 									"  <start-state name='start'>" +
 									"    <transition to='middle' />" +
 									"  </start-state>" +
 									"  <state name='middle'>" +
 									"    <transition to='end'>" +
-									"      <action class='"+SpringActionHandlerDelegate.class.getName()+"' configType='bean'>" +
+									"      <action ref-name='TESTNAME' class1='"+SpringActionHandlerDelegate.class.getName()+"' configType1='bean'>" +
 									"        <beanName>middleActionHandler</beanName>" +
 									"      </action>" +
 									"    </transition>" +
@@ -133,8 +132,10 @@ public class SimpleWorkflowTest {
 									"  <end-state name='end' />" +
 									"</process-definition>"
 					);
-
-			ctx.deployProcessDefinition(processDefinition);
+*/
+//			ProcessDefinition pd = ProcessDefinition.parseXmlInputStream(new ClassPathResource("/hello-world-process.jpdl").getInputStream());
+			ProcessDefinition pd = ProcessDefinition.parseXmlResource("hello-world-process.jpdl");
+			ctx.deployProcessDefinition(pd);
 		} finally {
 			ctx.close();
 		}
@@ -153,6 +154,7 @@ public class SimpleWorkflowTest {
 			assertEquals("start", token.getNode().getName());
 			// Let's start the process execution
 			token.signal();
+
 			// Now the process is in the state 's'.
 			assertEquals("middle", token.getNode().getName());
 
