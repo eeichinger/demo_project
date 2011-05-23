@@ -13,6 +13,10 @@
     <import resource="classpath:demoflows-context.xml"/>
     <import resource="classpath:integration-test-environment.xml"/>
 
+	<bean class="org.oaky.jbpm.JbpmConfigurationFactoryBean">
+		<property name="configLocation" value="classpath:/test.jbpm.cfg.xml" />
+	</bean>
+
 	<bean class="org.oaky.jbpm.SpringDbPersistenceServiceFactory">
 		<constructor-arg ref="sessionFactory" />
 		<constructor-arg>

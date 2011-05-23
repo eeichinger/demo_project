@@ -44,10 +44,10 @@ public class RoleRepositoryIT implements Serializable {
         Assert.assertEquals("TESTROLE", roleRepository.getRole(999).getName());
     }
 
-    @BeforeTransaction
-    public void beforeTransaction() {
-	    jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 3, "SysAdmin");
-    }
+//    @BeforeTransaction
+//    public void beforeTransaction() {
+//	    jdbc.update("insert into ROLE(role_id,role_name) VALUES(?,?)", 3, "SysAdmin");
+//    }
 
     @AfterTransaction
     public void afterTransaction() {

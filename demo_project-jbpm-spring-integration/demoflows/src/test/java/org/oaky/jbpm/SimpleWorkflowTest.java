@@ -11,40 +11,26 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/integration-test-context.xml")
 public class SimpleWorkflowTest {
 
+	@Autowired
 	JbpmConfiguration jbpmConfiguration = null;
-	JbpmTemplate jbmp;
-	
-	public SimpleWorkflowTest() {
-		jbpmConfiguration = JbpmConfiguration.parseXmlString(
-				"<jbpm-configuration>" +
-						// A jbpm-context mechanism separates the jbpm core
-						// engine from the services that jbpm uses from
-						// the environment.
-						"<jbpm-context>" +
-//						"  <service name='persistence' factory='org.jbpm.persistence.db.DbPersistenceServiceFactory' />" +
-//						"  <service name='tx' factory='"+ TxServiceFactory.class.getName()+"' />" +
-						"  <service name='persistence' factory='"+ SpringDbPersistenceServiceFactory.class.getName()+"' />" +
-						"</jbpm-context>" +
 
-						// Also all the resource files that are used by jbpm are
-						// referenced from the jbpm.cfg.xml
-						"<string name='resource.hibernate.cfg.xml' value='hibernate.cfg.hsqldb.xml' />" +
-				"</jbpm-configuration>"
-		);
-		jbmp = new JbpmTemplate(jbpmConfiguration);
-	}
+	JbpmTemplate jbmp;
 
 	@Before
 	public void setUp() {
+		jbmp = new JbpmTemplate(jbpmConfiguration);
 		// Since we start with a clean, empty in-memory database, we have to
 		// deploy the process first.  In reality, this is done once by the
 		// process developer.

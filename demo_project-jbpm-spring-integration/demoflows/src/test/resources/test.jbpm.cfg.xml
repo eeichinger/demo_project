@@ -1,0 +1,15 @@
+<jbpm-configuration>
+
+  <!--
+    This configuration is used when there is no jbpm.cfg.xml file found in the
+    root of the classpath.  It is a very basic configuration without persistence
+    and message services.  Only the authorization service installed.
+    You can parse and create processes, but when you try to use one of the
+    unavailable services, you'll get an exception.
+  -->
+  <jbpm-context>
+    <service name="persistence" factory="org.jbpm.persistence.db.DbPersistenceServiceFactory" />
+    <service name="tx" factory="org.jbpm.tx.TxServiceFactory" />
+  </jbpm-context>
+	
+</jbpm-configuration>
