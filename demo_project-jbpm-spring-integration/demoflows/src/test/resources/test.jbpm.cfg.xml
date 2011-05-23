@@ -8,7 +8,7 @@
     unavailable services, you'll get an exception.
   -->
   <jbpm-context>
-    <service name="persistence" factory="org.jbpm.persistence.db.DbPersistenceServiceFactory" />
+    <service name="persistence" factory="org.oaky.jbpm.SpringDbPersistenceServiceFactory" />
     <service name="tx" factory="org.jbpm.tx.TxServiceFactory" />
   </jbpm-context>
 	

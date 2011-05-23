@@ -2,7 +2,6 @@ package org.oaky.jbpm;
 
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
-import org.jbpm.db.GraphSession;
 import org.jbpm.graph.def.Node;
 import org.jbpm.graph.def.ProcessDefinition;
 import org.jbpm.graph.exe.ProcessInstance;
@@ -14,6 +13,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,13 +28,18 @@ import static org.junit.Assert.fail;
 public class SimpleWorkflowTest {
 
 	@Autowired
+	PlatformTransactionManager transactionManager;
+	
+	@Autowired
 	JbpmConfiguration jbpmConfiguration = null;
 
 	JbpmTemplate jbmp;
-
+	TransactionTemplate transactionTemplate;
+	
 	@Before
 	public void setUp() {
 		jbmp = new JbpmTemplate(jbpmConfiguration);
+		transactionTemplate = new TransactionTemplate(transactionManager);
 		// Since we start with a clean, empty in-memory database, we have to
 		// deploy the process first.  In reality, this is done once by the
 		// process developer.
@@ -53,24 +62,40 @@ public class SimpleWorkflowTest {
 
 		// Suppose we want to start a process instance (=process execution)
 		// when a user submits a form in a web application...
-		long processId = processInstanceIsCreatedWhenUserSubmitsWebappForm();
+		final long processId = transactionTemplate.execute(new TransactionCallback<Long>() {
+			public Long doInTransaction(TransactionStatus status) {
+				return processInstanceIsCreatedWhenUserSubmitsWebappForm();
+			}
+		});
 
 		// Then, later, upon the arrival of an asynchronous message the
 		// execution must continue.
-		theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+		transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+			}
+		});
 
 		assertTrue(TestActionHandler.isExecuted);
 	}
 
 	@Test
 	public void testFailingActionHandler() {
-		long processId = processInstanceIsCreatedWhenUserSubmitsWebappForm();
+		final long processId = transactionTemplate.execute(new TransactionCallback<Long>() {
+			public Long doInTransaction(TransactionStatus status) {
+				return processInstanceIsCreatedWhenUserSubmitsWebappForm();
+			}
+		});
 
 		// Then, later, upon the arrival of an asynchronous message the
 		// execution must continue - this time the ActionHandler throws an exception.
 		TestActionHandler.throwException = true;
 		try {
-			theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+				}
+			});
 			fail("expected exception");
 		} catch(RuntimeException rex) {
 			assertTrue(rex.getMessage().contains("a test exception"));
@@ -79,7 +104,7 @@ public class SimpleWorkflowTest {
 		}
 
 		// TODO: figure out what happens to a process in case an ActionHandler throws an exception!!!!
-//		assertRootTokenNodeEquals(processId, "middle");
+		assertRootTokenNodeEquals(processId, "middle");
 	}
 
 	public void deployProcessDefinition() {
@@ -114,17 +139,7 @@ public class SimpleWorkflowTest {
 		//Lookup the pojo persistence context-builder that is configured above
 		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
 		try {
-
-			GraphSession graphSession = jbpmContext.getGraphSession();
-
-			ProcessDefinition processDefinition =
-					graphSession.findLatestProcessDefinition("hello world");
-
-			//With the processDefinition that we retrieved from the database, we
-			//can create an execution of the process definition just like in the
-			//hello world example (which was without persistence).
-			ProcessInstance processInstance =
-					new ProcessInstance(processDefinition);
+			ProcessInstance processInstance = jbpmContext.newProcessInstanceForUpdate("hello world");
 
 			Token token = processInstance.getRootToken();
 			assertEquals("start", token.getNode().getName());
@@ -132,14 +147,6 @@ public class SimpleWorkflowTest {
 			token.signal();
 			// Now the process is in the state 's'.
 			assertEquals("middle", token.getNode().getName());
-
-			// Now the processInstance is saved in the database.  So the
-			// current state of the execution of the process is stored in the
-			// database.
-//			jbpmContext.save(processInstance);
-			// The method below will get the process instance back out
-			// of the database and resume execution by providing another
-			// external signal.
 
 			return processInstance.getId();
 		} finally {
@@ -154,7 +161,7 @@ public class SimpleWorkflowTest {
 		// Lookup the pojo persistence context-builder that is configured above
 		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
 		try {
-			ProcessInstance processInstance = jbpmContext.loadProcessInstance(processId);
+			ProcessInstance processInstance = jbpmContext.loadProcessInstanceForUpdate(processId);
 
 			// Now we can continue the execution.  Note that the processInstance
 			// delegates signals to the main path of execution (=the root token).

@@ -6,11 +6,16 @@ import org.hibernate.SessionFactory;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.JbpmContext;
 import org.jbpm.configuration.ObjectFactory;
+import org.jbpm.configuration.ObjectFactoryParser;
+import org.jbpm.util.ClassLoaderUtil;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
 /**
@@ -24,7 +29,7 @@ import org.springframework.core.io.Resource;
  *
  * @author Joram Barrez
  */
-public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBean, ApplicationListener {
+public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBean, ApplicationListener, BeanFactoryAware {
 
 	/** Logger for this class. */
 	private static final Log LOG = LogFactory.getLog(JbpmConfigurationFactoryBean.class);
@@ -33,8 +38,10 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 	private JbpmConfiguration jbpmConfiguration;
 
 	/** resource holding the configuration file */
-	private Resource configLocation;
-	
+	private Resource configLocation = new ClassPathResource("jpbm.cfg.xml");
+
+	private BeanFactory beanFactory;
+
 	/** The jBPM object factory */
 	private ObjectFactory objectFactory;
 
@@ -65,13 +72,14 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		LOG.info("All properties set. Initializing the jBPM configuration");
 
 		// Create jbpm Config object
-		if (objectFactory != null) {
-			jbpmConfiguration = new JbpmConfiguration(objectFactory);
-		} else if (configLocation != null){
-			jbpmConfiguration = JbpmConfiguration.parseInputStream(configLocation.getInputStream());
+		if (configLocation != null) {
+			objectFactory = ObjectFactoryParser.parseInputStream(configLocation.getInputStream());
 		} else {
-			jbpmConfiguration = createDefaultConfiguration();
+			objectFactory = ObjectFactoryParser.parseInputStream(ClassLoaderUtil.getJbpmConfigurationStream("jpbm.cfg.xml"));
 		}
+		ObjectFactory actualObjectFactory = new SpringObjectFactory(this.beanFactory, this.objectFactory);
+
+		jbpmConfiguration = new JbpmConfiguration(actualObjectFactory);
 
 		// Start job executor if needed
 		if (startJobExecutor) {
@@ -83,8 +91,14 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		if (applicationEvent instanceof ContextClosedEvent) {
-			jbpmConfiguration.getJobExecutor().stop();
+			if (startJobExecutor) {
+				jbpmConfiguration.getJobExecutor().stop();
+			}
 		}
+	}
+
+	public void setBeanFactory(BeanFactory beanFactory) {
+		this.beanFactory = beanFactory;
 	}
 
 	public void setObjectFactory(ObjectFactory objectFactory) {
@@ -99,22 +113,22 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		this.startJobExecutor = startJobExecutor;
 	}
 
-	protected JbpmConfiguration createDefaultConfiguration() {
-		return JbpmConfiguration.parseXmlString(
-				"<jbpm-configuration>" +
-						// A jbpm-context mechanism separates the jbpm core
-						// engine from the services that jbpm uses from
-						// the environment.
-						"<jbpm-context>" +
-						"	<service name='authentication' factory='org.jbpm.security.authentication.DefaultAuthenticationServiceFactory' />" +
-						"	<service name='logging' factory='org.jbpm.logging.db.DbLoggingServiceFactory' />" +
-						"	<service name='message' factory='org.jbpm.msg.db.DbMessageServiceFactory' />" +
-//						"	<service name='persistence' factory='org.jbpm.persistence.db.DbPersistenceServiceFactory' />" +
-						"   <service name='persistence' factory='"+ SpringDbPersistenceServiceFactory.class.getName()+"' />" +
-						"	<service name='scheduler' factory='org.jbpm.scheduler.db.DbSchedulerServiceFactory' />" +
-						"	<service name='tx' factory='org.jbpm.tx.TxServiceFactory' />" +
-						"</jbpm-context>" +
-				"</jbpm-configuration>"
-		);
-	}
+//	protected JbpmConfiguration createDefaultConfiguration() {
+//		return JbpmConfiguration.parseXmlString(
+//				"<jbpm-configuration>" +
+//						// A jbpm-context mechanism separates the jbpm core
+//						// engine from the services that jbpm uses from
+//						// the environment.
+//						"<jbpm-context>" +
+//						"	<service name='authentication' factory='org.jbpm.security.authentication.DefaultAuthenticationServiceFactory' />" +
+//						"	<service name='logging' factory='org.jbpm.logging.db.DbLoggingServiceFactory' />" +
+//						"	<service name='message' factory='org.jbpm.msg.db.DbMessageServiceFactory' />" +
+////						"	<service name='persistence' factory='org.jbpm.persistence.db.DbPersistenceServiceFactory' />" +
+//						"   <service name='persistence' factory='"+ SpringDbPersistenceServiceFactory.class.getName()+"' />" +
+//						"	<service name='scheduler' factory='org.jbpm.scheduler.db.DbSchedulerServiceFactory' />" +
+//						"	<service name='tx' factory='org.jbpm.tx.TxServiceFactory' />" +
+//						"</jbpm-context>" +
+//				"</jbpm-configuration>"
+//		);
+//	}
 }

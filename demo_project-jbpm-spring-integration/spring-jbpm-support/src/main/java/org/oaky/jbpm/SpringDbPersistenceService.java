@@ -32,6 +32,10 @@ public class SpringDbPersistenceService implements PersistenceService {
 		getCurrentSession().save(object);
 	}
 
+	public void close() {
+		transactionTemplate.getTransactionManager().commit(currentTransaction);
+	}
+
 	private GraphSession graphSession;
 	private LoggingSession loggingSession;
 	private JobSession jobSession;
@@ -75,16 +79,16 @@ public class SpringDbPersistenceService implements PersistenceService {
 
 	public boolean isRollbackOnly() {
 //		return currentTransaction.isRollbackOnly();
-		throw new RuntimeException("TO BE IMPLEMENTED");
+		throw new UnsupportedOperationException("deprecated");
 	}
 
 	public void setRollbackOnly(boolean isRollbackOnly) {
-		throw new RuntimeException("TO BE IMPLEMENTED");
+		throw new UnsupportedOperationException("deprecated");
 	}
 
 	public void setRollbackOnly() {
 //		currentTransaction.setRollbackOnly();
-		throw new RuntimeException("TO BE IMPLEMENTED");
+		throw new UnsupportedOperationException("deprecated");
 	}
 
 	public void setGraphSession(GraphSession graphSession) {
@@ -101,9 +105,5 @@ public class SpringDbPersistenceService implements PersistenceService {
 
 	public void setTaskMgmtSession(TaskMgmtSession taskMgmtSession) {
 		this.taskMgmtSession = taskMgmtSession;
-	}
-
-	public void close() {
-		transactionTemplate.getTransactionManager().commit(currentTransaction);
 	}
 }
