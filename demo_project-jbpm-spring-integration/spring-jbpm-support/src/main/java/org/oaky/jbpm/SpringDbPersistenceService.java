@@ -2,7 +2,6 @@ package org.oaky.jbpm;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.jbpm.JbpmConfiguration;
 import org.jbpm.db.ContextSession;
 import org.jbpm.db.GraphSession;
 import org.jbpm.db.JobSession;

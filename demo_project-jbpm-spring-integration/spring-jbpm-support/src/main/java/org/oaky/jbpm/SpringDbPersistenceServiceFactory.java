@@ -1,7 +1,6 @@
 package org.oaky.jbpm;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.secure.JACCPermissions;
 import org.jbpm.JbpmConfiguration;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.ServiceFactory;
@@ -27,6 +26,7 @@ public class SpringDbPersistenceServiceFactory implements ServiceFactory {
 
 	public Service openService() {
 		final TxService txService = jbpmConfiguration.getCurrentJbpmContext().getServices().getTxService();
+		Assert.notNull(txService, "tx service is mandatory when using persistence service");
 		return new SpringDbPersistenceService(txService, sessionFactory, transactionTemplate);
 	}
 
