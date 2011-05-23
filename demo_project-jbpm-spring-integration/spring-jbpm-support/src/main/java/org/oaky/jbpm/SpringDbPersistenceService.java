@@ -2,22 +2,26 @@ package org.oaky.jbpm;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.jbpm.JbpmConfiguration;
 import org.jbpm.db.ContextSession;
 import org.jbpm.db.GraphSession;
 import org.jbpm.db.JobSession;
 import org.jbpm.db.LoggingSession;
 import org.jbpm.db.TaskMgmtSession;
 import org.jbpm.persistence.PersistenceService;
+import org.jbpm.tx.TxService;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public class SpringDbPersistenceService implements PersistenceService {
 
+	private final TxService txService;
 	private final SessionFactory sessionFactory;
 	private final TransactionTemplate transactionTemplate;
 	private TransactionStatus currentTransaction;
 	
-	public SpringDbPersistenceService(SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+	public SpringDbPersistenceService(TxService txService, SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+		this.txService = txService;
 		this.sessionFactory = sessionFactory;
 		this.transactionTemplate = transactionTemplate;
 
@@ -33,6 +37,10 @@ public class SpringDbPersistenceService implements PersistenceService {
 	}
 
 	public void close() {
+		if (txService.isRollbackOnly()) {
+			currentTransaction.setRollbackOnly();
+//			transactionTemplate.getTransactionManager().rollback(currentTransaction);
+		}
 		transactionTemplate.getTransactionManager().commit(currentTransaction);
 	}
 

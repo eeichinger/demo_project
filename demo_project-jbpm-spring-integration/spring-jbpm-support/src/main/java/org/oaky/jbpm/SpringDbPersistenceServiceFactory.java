@@ -1,44 +1,33 @@
 package org.oaky.jbpm;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.secure.JACCPermissions;
+import org.jbpm.JbpmConfiguration;
 import org.jbpm.svc.Service;
 import org.jbpm.svc.ServiceFactory;
+import org.jbpm.tx.TxService;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 public class SpringDbPersistenceServiceFactory implements ServiceFactory {
 
-	private static SessionFactory globalSessionFactory;
-	private static TransactionTemplate globalTransactionTemplate;
+	public SpringDbPersistenceServiceFactory(JbpmConfiguration jbpmConfiguration, SessionFactory sessionFactory, TransactionTemplate transactionTemplate) {
+		Assert.notNull(jbpmConfiguration, "jbpmConfiguration is mandatory");
+		Assert.notNull(sessionFactory, "globalSessionFactory is mandatory");
+		Assert.notNull(transactionTemplate, "globalTransactionManager is mandatory");
 
-	/*
-	 use this constructor for defining the spring bean
-	 */
-	public SpringDbPersistenceServiceFactory(SessionFactory sessionFactory, TransactionTemplate transactionManager) {
-		Assert.isNull(globalSessionFactory);
-		Assert.isNull(globalTransactionTemplate);
-		globalSessionFactory = sessionFactory;
-		globalTransactionTemplate = transactionManager;
-		this.transactionTemplate = null;
-		this.sessionFactory = null;
+		this.jbpmConfiguration = jbpmConfiguration;
+		this.sessionFactory = sessionFactory;
+		this.transactionTemplate = transactionTemplate;
 	}
 
+	private final JbpmConfiguration jbpmConfiguration;
 	private final SessionFactory sessionFactory;
 	private final TransactionTemplate transactionTemplate;
 
-	public SpringDbPersistenceServiceFactory() {
-//		setCurrentSessionEnabled(true);
-//		setTransactionEnabled(false);
-
-		Assert.notNull(globalSessionFactory, "globalSessionFactory not set - did you forget to declare a SpringDbPersistenceServiceFactory bean in your ApplicationContext?");
-		Assert.notNull(globalTransactionTemplate, "globalTransactionManager not set - did you forget to declare a SpringDbPersistenceServiceFactory bean in your ApplicationContext?");
-
-		sessionFactory = globalSessionFactory;
-		transactionTemplate = globalTransactionTemplate;
-	}
-
 	public Service openService() {
-		return new SpringDbPersistenceService(sessionFactory, transactionTemplate);
+		final TxService txService = jbpmConfiguration.getCurrentJbpmContext().getServices().getTxService();
+		return new SpringDbPersistenceService(txService, sessionFactory, transactionTemplate);
 	}
 
 	public void close() {

@@ -2,12 +2,12 @@ package org.oaky.jbpm;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.SessionFactory;
 import org.jbpm.JbpmConfiguration;
-import org.jbpm.JbpmContext;
 import org.jbpm.configuration.ObjectFactory;
 import org.jbpm.configuration.ObjectFactoryParser;
+import org.jbpm.configuration.ObjectInfo;
 import org.jbpm.util.ClassLoaderUtil;
+import org.jbpm.util.XmlUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
@@ -17,6 +17,14 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
+import org.w3c.dom.Element;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Factory bean that produces the (singleton) jBPM configuration bean.
@@ -28,6 +36,7 @@ import org.springframework.core.io.Resource;
  *              when the application context goes doen.
  *
  * @author Joram Barrez
+ * @author Erich Eichinger
  */
 public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBean, ApplicationListener, BeanFactoryAware {
 
@@ -48,6 +57,9 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 	/** Indicates whether the job executor must be started */
 	private boolean startJobExecutor;
 
+	/** whether to set this configuration's object factory as the global default */
+	private boolean makeObjectFactoryGlobalDefault;
+	
 	/**
 	 * Default constructor.
 	 */
@@ -72,14 +84,13 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		LOG.info("All properties set. Initializing the jBPM configuration");
 
 		// Create jbpm Config object
-		if (configLocation != null) {
-			objectFactory = ObjectFactoryParser.parseInputStream(configLocation.getInputStream());
-		} else {
-			objectFactory = ObjectFactoryParser.parseInputStream(ClassLoaderUtil.getJbpmConfigurationStream("jpbm.cfg.xml"));
-		}
-		ObjectFactory actualObjectFactory = new SpringObjectFactory(this.beanFactory, this.objectFactory);
+		objectFactory = parseInputStream(configLocation.getInputStream());
 
-		jbpmConfiguration = new JbpmConfiguration(actualObjectFactory);
+		if (makeObjectFactoryGlobalDefault) {
+			JbpmConfiguration.Configs.setDefaultObjectFactory(objectFactory);
+		}
+
+		jbpmConfiguration = new JbpmConfiguration(objectFactory);
 
 		// Start job executor if needed
 		if (startJobExecutor) {
@@ -91,10 +102,15 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
 		if (applicationEvent instanceof ContextClosedEvent) {
+			JbpmConfiguration.Configs.setDefaultObjectFactory(null);
 			if (startJobExecutor) {
 				jbpmConfiguration.getJobExecutor().stop();
 			}
 		}
+	}
+
+	public void setMakeObjectFactoryGlobalDefault(boolean makeObjectFactoryGlobalDefault) {
+		this.makeObjectFactoryGlobalDefault = makeObjectFactoryGlobalDefault;
 	}
 
 	public void setBeanFactory(BeanFactory beanFactory) {
@@ -106,6 +122,7 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 	}
 
 	public void setConfigLocation(Resource configLocation) {
+		Assert.notNull(configLocation);
 		this.configLocation = configLocation;
 	}
 
@@ -113,22 +130,39 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		this.startJobExecutor = startJobExecutor;
 	}
 
-//	protected JbpmConfiguration createDefaultConfiguration() {
-//		return JbpmConfiguration.parseXmlString(
-//				"<jbpm-configuration>" +
-//						// A jbpm-context mechanism separates the jbpm core
-//						// engine from the services that jbpm uses from
-//						// the environment.
-//						"<jbpm-context>" +
-//						"	<service name='authentication' factory='org.jbpm.security.authentication.DefaultAuthenticationServiceFactory' />" +
-//						"	<service name='logging' factory='org.jbpm.logging.db.DbLoggingServiceFactory' />" +
-//						"	<service name='message' factory='org.jbpm.msg.db.DbMessageServiceFactory' />" +
-////						"	<service name='persistence' factory='org.jbpm.persistence.db.DbPersistenceServiceFactory' />" +
-//						"   <service name='persistence' factory='"+ SpringDbPersistenceServiceFactory.class.getName()+"' />" +
-//						"	<service name='scheduler' factory='org.jbpm.scheduler.db.DbSchedulerServiceFactory' />" +
-//						"	<service name='tx' factory='org.jbpm.tx.TxServiceFactory' />" +
-//						"</jbpm-context>" +
-//				"</jbpm-configuration>"
-//		);
-//	}
+	protected ObjectFactory parseInputStream(InputStream xmlInputStream) {
+	  Element rootElement = XmlUtil.parseXmlInputStream(xmlInputStream).getDocumentElement();
+	  return createObjectFactory(rootElement);
+	}
+
+	protected ObjectFactory createObjectFactory(Element rootElement) {
+	  FixedObjectFactoryParser objectFactoryParser = new FixedObjectFactoryParser();
+	  List objectInfos = new ArrayList();
+	  List topLevelElements = XmlUtil.elements(rootElement);
+	  for (int i = 0; i<topLevelElements.size(); i++) {
+	    Element topLevelElement = (Element) topLevelElements.get(i);
+	    ObjectInfo objectInfo = objectFactoryParser.parse(topLevelElement);
+	    objectInfos.add(objectInfo);
+	  }
+	  return createObjectFactory(objectFactoryParser.getNamedObjectInfos(), objectInfos);
+	}
+
+	private ObjectFactory createObjectFactory(Map namedObjectInfos, List objectInfos) {
+		return new SpringObjectFactory(namedObjectInfos, objectInfos, this.beanFactory);
+	}
+
+	private static class FixedObjectFactoryParser extends ObjectFactoryParser {
+
+		private final Map namedObjectInfos = new HashMap();
+
+		public Map getNamedObjectInfos() {
+			return namedObjectInfos;
+		}
+
+		@Override
+		public void addNamedObjectInfo(String name, ObjectInfo objectInfo) {
+			this.namedObjectInfos.put(name, objectInfo);
+			super.addNamedObjectInfo(name, objectInfo);
+		}
+	}
 }

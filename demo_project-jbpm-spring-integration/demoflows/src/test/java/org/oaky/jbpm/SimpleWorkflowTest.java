@@ -81,24 +81,27 @@ public class SimpleWorkflowTest {
 
 	@Test
 	public void testFailingActionHandler() {
-		final long processId = transactionTemplate.execute(new TransactionCallback<Long>() {
-			public Long doInTransaction(TransactionStatus status) {
-				return processInstanceIsCreatedWhenUserSubmitsWebappForm();
-			}
-		});
+//		final long processId = transactionTemplate.execute(new TransactionCallback<Long>() {
+//			public Long doInTransaction(TransactionStatus status) {
+//				return processInstanceIsCreatedWhenUserSubmitsWebappForm();
+//			}
+//		});
+
+		final long processId = processInstanceIsCreatedWhenUserSubmitsWebappForm();
 
 		// Then, later, upon the arrival of an asynchronous message the
 		// execution must continue - this time the ActionHandler throws an exception.
 		TestActionHandler.throwException = true;
 		try {
-			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
-				}
-			});
+//			transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+//				protected void doInTransactionWithoutResult(TransactionStatus status) {
+//					theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
+//				}
+//			});
+			theProcessInstanceContinuesWhenAnAsyncMessageIsReceived(processId);
 			fail("expected exception");
 		} catch(RuntimeException rex) {
-			assertTrue(rex.getMessage().contains("a test exception"));
+			assertTrue("Expected test exception but was " + rex, rex.getMessage().contains("a test exception"));
 		} finally {
 			TestActionHandler.throwException = false;
 		}
@@ -112,24 +115,29 @@ public class SimpleWorkflowTest {
 		// of the process definition.  The process definition has
 		// 3 nodes: an unnamed start-state, a state 's' and an
 		// end-state named 'end'.
-		ProcessDefinition processDefinition =
-				ProcessDefinition.parseXmlString(
-						"<process-definition name='hello world'>" +
-								"  <start-state name='start'>" +
-								"    <transition to='middle' />" +
-								"  </start-state>" +
-								"  <state name='middle'>" +
-								"    <transition to='end'>" +
-								"      <action class='"+SpringActionHandlerDelegate.class.getName()+"' configType='bean'>" +
-								"        <beanName>middleActionHandler</beanName>" +
-								"      </action>" +
-								"    </transition>" +
-								"  </state>" +
-								"  <end-state name='end' />" +
-								"</process-definition>"
-				);
+		JbpmContext ctx = jbpmConfiguration.createJbpmContext();
+		try {
+			ProcessDefinition processDefinition =
+					ProcessDefinition.parseXmlString(
+							"<process-definition name='hello world'>" +
+									"  <start-state name='start'>" +
+									"    <transition to='middle' />" +
+									"  </start-state>" +
+									"  <state name='middle'>" +
+									"    <transition to='end'>" +
+									"      <action class='"+SpringActionHandlerDelegate.class.getName()+"' configType='bean'>" +
+									"        <beanName>middleActionHandler</beanName>" +
+									"      </action>" +
+									"    </transition>" +
+									"  </state>" +
+									"  <end-state name='end' />" +
+									"</process-definition>"
+					);
 
-		jbmp.deployProcessDefinition(processDefinition);
+			ctx.deployProcessDefinition(processDefinition);
+		} finally {
+			ctx.close();
+		}
 	}
 
 	public long processInstanceIsCreatedWhenUserSubmitsWebappForm() {
@@ -171,9 +179,10 @@ public class SimpleWorkflowTest {
 			// arrived in the end-state.
 			assertTrue(processInstance.hasEnded());
 
-			// Now we can update the state of the execution in the database
-//			jbpmContext.save(processInstance);
-
+		} catch(RuntimeException ex) {
+			// an exception occured, mark ambient transaction invalid
+			jbpmContext.setRollbackOnly();
+			throw ex;
 		} finally {
 			// Tear down the pojo persistence context.
 			jbpmContext.close();
@@ -183,9 +192,7 @@ public class SimpleWorkflowTest {
 	public void assertRootTokenNodeEquals(long processId, String nodeName) {
 		JbpmContext jbpmContext = jbpmConfiguration.createJbpmContext();
 		try {
-			ProcessInstance processInstance = jbpmContext.getProcessInstance(processId);
-//			assertFalse("is suspended",processInstance.isSuspended());
-//			assertFalse("is terminated",processInstance.isTerminatedImplicitly());
+			ProcessInstance processInstance = jbpmContext.getProcessInstanceForUpdate(processId);
 			Token token = processInstance.getRootToken();
 			final Node tokenNode = token.getNode();
 			assertEquals(nodeName, tokenNode.getName());
