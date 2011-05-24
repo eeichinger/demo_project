@@ -15,8 +15,10 @@
 
 	<bean name="jbpmConfiguration" class="org.oaky.jbpm.JbpmConfigurationFactoryBean">
 		<property name="configLocation" value="classpath:/test.jbpm.cfg.xml" />
+		<property name="sessionFactory" ref="sessionFactory" />
 	</bean>
 
+<!--
 	<bean name="jbpmPersistenceServiceFactory" class="org.oaky.jbpm.SpringDbPersistenceServiceFactory">
 		<constructor-arg ref="jbpmConfiguration" />
 		<constructor-arg ref="sessionFactory" />
@@ -26,6 +28,7 @@
 			</bean>
 		</constructor-arg>
 	</bean>
+-->
 
 	<bean name="middleActionHandler" class="org.oaky.jbpm.TestActionHandler" />
 </beans>
