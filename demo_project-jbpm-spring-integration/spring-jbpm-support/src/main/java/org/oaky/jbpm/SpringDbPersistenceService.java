@@ -84,6 +84,10 @@ public class SpringDbPersistenceService implements PersistenceService {
 		return taskMgmtSession;
 	}
 
+	public Object getCustomSession(Class aClass) {
+		throw new RuntimeException("TO BE IMPLEMENTED");
+	}
+
 	public void setGraphSession(GraphSession graphSession) {
 		this.graphSession = graphSession;
 	}

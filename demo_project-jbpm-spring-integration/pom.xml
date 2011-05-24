@@ -28,7 +28,7 @@
 
 	<properties>
 	    <spring.version>3.0.5.RELEASE</spring.version>
-	    <jbpm3.version>3.3.1.GA</jbpm3.version>
+	    <jbpm3.version>3.2.10</jbpm3.version>
 
 		<acceptance-test.port>8080</acceptance-test.port>
 		<acceptance-test.server>localhost</acceptance-test.server>

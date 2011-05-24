@@ -9,6 +9,7 @@ import org.jbpm.configuration.ObjectFactory;
 import org.jbpm.configuration.ObjectFactoryImpl;
 import org.jbpm.configuration.ObjectFactoryParser;
 import org.jbpm.configuration.ObjectInfo;
+import org.jbpm.configuration.RefInfo;
 import org.jbpm.util.XmlUtil;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -97,6 +98,8 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 		if (useSpringObjectFactory) {
 			objectFactory = parseObjectFactory(configLocation.getInputStream());
 			jbpmConfiguration = new JbpmConfiguration(objectFactory);
+			// workaround for jbpm 3.2.10 - register config instance with objectFactory
+			registerInstanceWithObjectFactory();
 		} else {
 //			objectFactory = ObjectFactoryParser.parseInputStream(configLocation.getInputStream());
 			jbpmConfiguration = JbpmConfiguration.parseInputStream(configLocation.getInputStream());
@@ -117,6 +120,28 @@ public class JbpmConfigurationFactoryBean implements FactoryBean, InitializingBe
 			jbpmConfiguration.startJobExecutor();
 			LOG.info("Job executor started.");
 		}
+	}
+
+	private void registerInstanceWithObjectFactory() {
+		((SpringObjectFactory)objectFactory).addObjectInfo(
+				new ObjectInfo() {
+					public boolean hasName() {
+						return true;
+					}
+
+					public String getName() {
+						return "jbpm.configuration";
+					}
+
+					public boolean isSingleton() {
+						return true;
+					}
+
+					public Object createObject(ObjectFactoryImpl objectFactory) {
+						return jbpmConfiguration;
+					}
+				}
+		);
 	}
 
 	public void onApplicationEvent(ApplicationEvent applicationEvent) {
