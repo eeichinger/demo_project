@@ -3,6 +3,8 @@
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                     xsi:schemaLocation="urn:jbpm.org:jpdl-3.3 http://docs.jboss.org/jbpm/xsd/jpdl-3.3.xsd">
 
+	<description>hello-world-context.xml</description>
+	
 	<start-state name='start'>
 		<transition to='middle'/>
 	</start-state>

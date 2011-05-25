@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process-definition name="org/oaky/jbpm/SpringAwareActionHandlerDelegateTest-workflows-sunnyday" xmlns="urn:jbpm.org:jpdl-3.2"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="urn:jbpm.org:jpdl-3.2 http://docs.jboss.org/jbpm/xsd/jpdl-3.2.xsd">
+
+	<start-state name='start'>
+		<transition to='end'>
+			<action class='org.oaky.jbpm.SpringAwareActionHandlerDelegate' config-type='bean'>
+				<beanName>transitionActionHandler</beanName>
+			</action>
+		</transition>
+	</start-state>
+
+	<end-state name='end'/>
+
+</process-definition>
